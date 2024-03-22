@@ -11,15 +11,19 @@ namespace Tiffpaint
 {
     public partial class Form1 : Form
     {
+        //изображение
         short[] red;
         short[] green;
         short[] blue;
         int width;
         int height;
 
+        //рисование
         private Point previousPoint;
         private bool isDrawing = false;
         private Bitmap drawingBitmap;
+
+
 
 
 
@@ -34,11 +38,46 @@ namespace Tiffpaint
             LoadImage(@"C:\Users\ivan3\Desktop\subimage_1536_1536.tiff");
             PrintOriginalImage(pictureBox1);
             PrintSelectingAreasImage(pictureBox2);
-            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage;
-            //drawingBitmap = new Bitmap(pictureBox2.Width, pictureBox2.Height);
-            //pictureBox2.Image = drawingBitmap;
-            //ClearDrawing();
+            pictureBox2.MouseWheel += PictureBox_MouseWheel;
+            pictureBox1.MouseWheel += PictureBox_MouseWheel;
         }
+
+       
+
+        private void PictureBox_MouseWheel(object? sender, MouseEventArgs e)
+        {
+            if (ModifierKeys.HasFlag(Keys.Control))
+            {
+                float zoomFactor = e.Delta > 0 ? 1.1f : 0.9f; // Определяем коэффициент масштабирования
+                ZoomImage(pictureBox2, zoomFactor); // Изменяем масштаб изображения в PictureBox2
+            }
+        }
+        private void ZoomImage(PictureBox pictureBox, float zoomFactor)
+        {
+            if (pictureBox.Image == null)
+                return;
+
+            // Получаем текущий масштаб изображения
+            float currentScale = (float)pictureBox.Width / pictureBox.Image.Width;
+
+            // Вычисляем новый размер изображения
+            int newWidth = (int)(pictureBox.Image.Width * zoomFactor);
+            int newHeight = (int)(pictureBox.Image.Height * zoomFactor);
+
+            // Масштабируем изображение
+            Bitmap scaledImage = new Bitmap(pictureBox.Image, newWidth, newHeight);
+
+            // Устанавливаем новое изображение в PictureBox
+            pictureBox.Image = scaledImage;
+
+            // Пересчитываем координаты центра изображения
+            int offsetX = (pictureBox.Width - newWidth) / 2;
+            int offsetY = (pictureBox.Height - newHeight) / 2;
+
+            // Устанавливаем новую позицию изображения
+            pictureBox.Location = new Point(offsetX, offsetY);
+        }
+
 
         /// <summary>
         /// Загружает в массивы значения пикселей
@@ -144,7 +183,7 @@ namespace Tiffpaint
         }
 
 
-
+        //=================================================== Рисование
 
         private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
         {
@@ -171,13 +210,5 @@ namespace Tiffpaint
             isDrawing = false;
         }
 
-        private void ClearDrawing()
-        {
-            using (Graphics g = Graphics.FromImage(drawingBitmap))
-            {
-                g.Clear(Color.White);
-            }
-            pictureBox2.Invalidate();
-        }
     }
 }
