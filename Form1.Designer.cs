@@ -49,6 +49,9 @@
             pictureBox2.Size = new Size(512, 512);
             pictureBox2.TabIndex = 1;
             pictureBox2.TabStop = false;
+            pictureBox2.MouseDown += pictureBox2_MouseDown;
+            pictureBox2.MouseMove += pictureBox2_MouseMove;
+            pictureBox2.MouseUp += pictureBox2_MouseUp;
             // 
             // Form1
             // 
