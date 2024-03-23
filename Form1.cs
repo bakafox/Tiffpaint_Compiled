@@ -22,6 +22,9 @@ namespace Tiffpaint
         private Point previousPoint;
         private bool isDrawing = false;
         private Bitmap drawingBitmap;
+        private Bitmap OriginalImage;
+        Pen pen;
+        Color CurrentColor;
 
 
 
@@ -38,47 +41,10 @@ namespace Tiffpaint
             LoadImage(@"C:\Users\ivan3\Desktop\subimage_1536_1536.tiff");
             PrintOriginalImage(pictureBox1);
             PrintSelectingAreasImage(pictureBox2);
-            pictureBox2.MouseWheel += PictureBox_MouseWheel;
-            pictureBox1.MouseWheel += PictureBox_MouseWheel;
+            InitializePen();
+            pictureBox2.MouseWheel += pictureBox_MouseWheel;
+            pictureBox1.MouseWheel += pictureBox_MouseWheel;
         }
-
-       
-
-        private void PictureBox_MouseWheel(object? sender, MouseEventArgs e)
-        {
-            if (ModifierKeys.HasFlag(Keys.Control))
-            {
-                float zoomFactor = e.Delta > 0 ? 1.1f : 0.9f; // Определяем коэффициент масштабирования
-                ZoomImage(pictureBox2, zoomFactor); // Изменяем масштаб изображения в PictureBox2
-            }
-        }
-        private void ZoomImage(PictureBox pictureBox, float zoomFactor)
-        {
-            if (pictureBox.Image == null)
-                return;
-
-            // Получаем текущий масштаб изображения
-            float currentScale = (float)pictureBox.Width / pictureBox.Image.Width;
-
-            // Вычисляем новый размер изображения
-            int newWidth = (int)(pictureBox.Image.Width * zoomFactor);
-            int newHeight = (int)(pictureBox.Image.Height * zoomFactor);
-
-            // Масштабируем изображение
-            Bitmap scaledImage = new Bitmap(pictureBox.Image, newWidth, newHeight);
-
-            // Устанавливаем новое изображение в PictureBox
-            pictureBox.Image = scaledImage;
-
-            // Пересчитываем координаты центра изображения
-            int offsetX = (pictureBox.Width - newWidth) / 2;
-            int offsetY = (pictureBox.Height - newHeight) / 2;
-
-            // Устанавливаем новую позицию изображения
-            pictureBox.Location = new Point(offsetX, offsetY);
-        }
-
-
         /// <summary>
         /// Загружает в массивы значения пикселей
         /// </summary>
@@ -125,12 +91,12 @@ namespace Tiffpaint
         /// <param name="box">Контейнер, куда выводить</param>
         public void PrintOriginalImage(PictureBox box)
         {
-            Bitmap bitmap = new Bitmap(width, height);
+            OriginalImage = new Bitmap(width, height);
 
             // Преобразование значений из short в byte (0-255)
-            byte[] redBytes = Array.ConvertAll(red, val => (byte)(val / 10)); // делим на 256 чтобы уместить значения в диапазон 0-255
-            byte[] greenBytes = Array.ConvertAll(green, val => (byte)(val / 10));
-            byte[] blueBytes = Array.ConvertAll(blue, val => (byte)(val / 10));
+            byte[] redBytes = Array.ConvertAll(red, val => (byte)(val / 7)); // делим на 256 чтобы уместить значения в диапазон 0-255
+            byte[] greenBytes = Array.ConvertAll(green, val => (byte)(val / 7));
+            byte[] blueBytes = Array.ConvertAll(blue, val => (byte)(val / 7));
 
             // Заполнение изображения данными
             for (int y = 0; y < height; y++)
@@ -139,11 +105,11 @@ namespace Tiffpaint
                 {
                     int index = y * width + x; // Индекс текущего пикселя в массивах данных
                     Color color = Color.FromArgb(redBytes[index], greenBytes[index], blueBytes[index]);
-                    bitmap.SetPixel(x, y, color);
+                    OriginalImage.SetPixel(x, y, color);
                 }
             }
-
-            box.Image = bitmap;
+            box.Image = OriginalImage;
+            //box.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         /// <summary>
@@ -152,15 +118,14 @@ namespace Tiffpaint
         /// <param name="box">Контейнер, куда выводить</param>
         public void PrintSelectingAreasImage(PictureBox box)
         {
+            //box.BackColor = Color.Transparent;
+
+
+
             // Создание объекта Bitmap
-            Bitmap bitmap2 = new Bitmap(width, height);
-
+            drawingBitmap = new Bitmap(width, height);
             Color gray = Color.FromArgb(128, 128, 128);
-
-            // Черный цвет
             Color black = Color.Black;
-
-            // Белый цвет
             Color white = Color.White;
             // Заполнение изображения данными
             for (int y = 0; y < height; y++)
@@ -170,16 +135,33 @@ namespace Tiffpaint
                     int index = y * width + x; // Индекс текущего пикселя в массивах данных
                     int brightness = (red[index] + green[index] + blue[index]) / 3;
                     if (brightness < 300)
-                        bitmap2.SetPixel(x, y, gray);
+                        drawingBitmap.SetPixel(x, y, gray);
                     else if (brightness < 800 && brightness > 300)
-                        bitmap2.SetPixel(x, y, white);
+                        drawingBitmap.SetPixel(x, y, white);
                     else
-                        bitmap2.SetPixel(x, y, black);
+                        drawingBitmap.SetPixel(x, y, black);
                 }
             }
 
-            box.Image = bitmap2;
-            drawingBitmap = bitmap2;
+
+
+            box.Image = drawingBitmap;
+            //box.Image = ApplyTransparency(drawingBitmap, 0.10f);
+            //box.BackColor = Color.FromArgb(200, Color.White);
+        }
+
+        private Bitmap ApplyTransparency(Bitmap bmp, float opacity)
+        {
+            Bitmap resultBitmap = new Bitmap(bmp.Width, bmp.Height);
+            using (Graphics g = Graphics.FromImage(resultBitmap))
+            {
+                ColorMatrix matrix = new ColorMatrix();
+                matrix.Matrix33 = opacity; // Устанавливаем значение прозрачности
+                ImageAttributes attributes = new ImageAttributes();
+                attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                g.DrawImage(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height), 0, 0, bmp.Width, bmp.Height, GraphicsUnit.Pixel, attributes);
+            }
+            return resultBitmap;
         }
 
 
@@ -188,21 +170,51 @@ namespace Tiffpaint
         private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
         {
             isDrawing = true;
-            previousPoint = e.Location;
+            if (pictureBox2.SizeMode == PictureBoxSizeMode.Zoom)
+            {
+                previousPoint = PictureBoxToBitmapCoordinates(pictureBox2, e.Location);
+            }
+            else
+                previousPoint = e.Location;
         }
 
         private void pictureBox2_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDrawing)
             {
+                // Преобразование координат мыши из PictureBox в координаты Bitmap
+                Point bitmapLocation;
+                if (pictureBox2.SizeMode == PictureBoxSizeMode.Zoom)
+                {
+                    bitmapLocation = PictureBoxToBitmapCoordinates(pictureBox2, e.Location);
+                }
+                else
+                    bitmapLocation = e.Location;
+
                 using (Graphics g = Graphics.FromImage(drawingBitmap))
                 {
-                    Pen pen = new Pen(Color.Black, 2); // Указывает цвет и толщину линии
-                    g.DrawLine(pen, previousPoint, e.Location);
+                    // Округление координат мыши
+                    Point roundedPreviousPoint = new Point((int)Math.Round((double)previousPoint.X), (int)Math.Round((double)previousPoint.Y));
+                    Point roundedBitmapLocation = new Point((int)Math.Round((double)bitmapLocation.X), (int)Math.Round((double)bitmapLocation.Y));
+
+                    g.DrawLine(pen, roundedPreviousPoint, roundedBitmapLocation);
                 }
                 pictureBox2.Invalidate(); // Обновление PictureBox
-                previousPoint = e.Location;
+                previousPoint = bitmapLocation;
             }
+        }
+
+        // Метод для преобразования координат мыши из PictureBox в координаты Bitmap
+        private Point PictureBoxToBitmapCoordinates(PictureBox pictureBox, Point pictureBoxLocation)
+        {
+            float scaleX = (float)drawingBitmap.Width / pictureBox.ClientSize.Width;
+            float scaleY = (float)drawingBitmap.Height / pictureBox.ClientSize.Height;
+
+            // Учитываем смещение PictureBox при масштабировании
+            int bitmapX = (int)(pictureBoxLocation.X * scaleX);
+            int bitmapY = (int)(pictureBoxLocation.Y * scaleY);
+
+            return new Point(bitmapX, bitmapY);
         }
 
         private void pictureBox2_MouseUp(object sender, MouseEventArgs e)
@@ -210,5 +222,154 @@ namespace Tiffpaint
             isDrawing = false;
         }
 
+        private void SaveBtn_Click(object sender, EventArgs e)
+        {
+            SaveAsGeoTiff(drawingBitmap, @"C:\Users\ivan3\Desktop\subimage_1536_1536_mask.tiff");
+            //SaveBitmap(@"C:\Users\ivan3\Desktop\example.jpg", drawingBitmap, ImageFormat.Jpeg);
+        }
+
+        public static void SaveAsGeoTiff(Bitmap bitmap, string outputPath)
+        {
+            Gdal.AllRegister();
+            Dataset ds = Gdal.GetDriverByName("GTiff").Create(outputPath, bitmap.Width, bitmap.Height, 1, DataType.GDT_UInt16, null);
+
+            // Write bitmap data to the GeoTIFF dataset
+            BitmapDataToRaster(bitmap, ds);
+
+            // Close the dataset
+            ds.Dispose();
+        }
+
+        private static void BitmapDataToRaster(Bitmap bitmap, Dataset ds)
+        {
+            // Блокировка изображения для получения данных в формате BitmapData
+            BitmapData data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+
+            try
+            {
+                int stride = data.Stride;
+                byte[] buffer = new byte[stride * bitmap.Height];
+                System.Runtime.InteropServices.Marshal.Copy(data.Scan0, buffer, 0, buffer.Length);
+
+                // Итерация по каждому пикселю изображения
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    for (int x = 0; x < bitmap.Width; x++)
+                    {
+                        int index = y * stride + x * 3; // Индекс текущего пикселя в массиве buffer
+
+                        // Получение значения красного канала текущего пикселя
+                        byte redValue = buffer[index]; // Красный канал (индекс 2 в формате BGR)
+
+                        // Запись значения красного канала пикселя в растр
+                        ds.GetRasterBand(1).WriteRaster(x, y, 1, 1, new byte[] { redValue }, 1, 1, 1, 1);
+                    }
+                }
+            }
+            finally
+            {
+                // Разблокировка данных изображения
+                bitmap.UnlockBits(data);
+            }
+        }
+
+        public static void SaveBitmap(string filePath, Bitmap bitmap, ImageFormat format)
+        {
+            bitmap.Save(filePath, format);
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true; // Предотвратить ввод символа
+            }
+        }
+
+        private void InitializePen()
+        {
+            txtSize.Text = "2";
+            BlackRd.Checked = true;
+        }
+
+        private void BlackRd_CheckedChanged(object sender, EventArgs e)
+        {
+            if (BlackRd.Checked)
+            {
+                pen = new Pen(Color.Black, Convert.ToInt32(txtSize.Text));
+                CurrentColor = Color.Black;
+            }
+        }
+
+        private void WhiteRb_CheckedChanged(object sender, EventArgs e)
+        {
+            if (WhiteRb.Checked)
+            {
+                CurrentColor = Color.White;
+                pen = new Pen(Color.White, Convert.ToInt32(txtSize.Text));
+            }
+        }
+
+        private void GrayRb_CheckedChanged(object sender, EventArgs e)
+        {
+            if (GrayRb.Checked)
+            {
+                pen = new Pen(Color.Gray, Convert.ToInt32(txtSize.Text));
+                CurrentColor = Color.Gray;
+            }
+
+        }
+
+        private void txtSize_TextChanged(object sender, EventArgs e)
+        {
+            pen = new Pen(CurrentColor, Convert.ToInt32(txtSize.Text));
+        }
+
+        private void pictureBox_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (sender is PictureBox box)
+            {
+                if (e.Delta > 0)
+                {
+                    // Увеличение масштаба при прокрутке колесика вверх
+                    if (box.SizeMode != PictureBoxSizeMode.Zoom)
+                    {
+                        box.SizeMode = PictureBoxSizeMode.Zoom;
+                        //previousPoint = PictureBoxToBitmapCoordinates(pictureBox2, previousPoint);
+                    }
+
+
+                }
+                else
+                {
+                    // Уменьшение масштаба при прокрутке колесика вниз
+                    if (box.SizeMode != PictureBoxSizeMode.Normal)
+                        box.SizeMode = PictureBoxSizeMode.Normal;
+                }
+            }
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Обработка нажатия клавиш Z, X и C
+            if (e.KeyCode == Keys.Z)
+            {
+                if(pictureBox2.Visible == true)
+                {
+                    pictureBox2.Visible = false;
+                }
+            }
+            else if (e.KeyCode == Keys.X)
+            {
+                if (pictureBox2.Visible == false)
+                {
+                    pictureBox2.Visible = true;
+                }
+            }
+            else if (e.KeyCode == Keys.C)
+            {
+                
+            }
+        }
     }
 }
