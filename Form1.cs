@@ -1,10 +1,6 @@
 using MaxRev.Gdal.Core;
 using OSGeo.GDAL;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Imaging;
-using System.Windows.Forms;
 
 
 namespace Tiffpaint
@@ -27,9 +23,6 @@ namespace Tiffpaint
         Color CurrentColor;
 
 
-
-
-
         public Form1()
         {
             InitializeComponent();
@@ -38,50 +31,61 @@ namespace Tiffpaint
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            LoadImage(@"C:\Users\ivan3\Desktop\subimage_1536_1536.tiff");
-            PrintOriginalImage(pictureBox1);
-            PrintSelectingAreasImage(pictureBox2);
             InitializePen();
+            Graytxt.Text = "300";
+            Whitetxt.Text = "800";
+            pictureBox2.Visible = false;
             pictureBox2.MouseWheel += pictureBox_MouseWheel;
             pictureBox1.MouseWheel += pictureBox_MouseWheel;
+            pictureBox3.MouseWheel += pictureBox_MouseWheel;
         }
+
         /// <summary>
         /// Загружает в массивы значения пикселей
         /// </summary>
-        /// <param name="filePath">Путь к изображению</param>
-        public void LoadImage(string filePath)
+        public void LoadImage()
         {
-            Dataset dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
-            if (dataset == null)
-            {
-                Console.WriteLine("Не удалось открыть файл");
-                return;
-            }
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Изображения|*.tif;*.tiff;*.jpg;*.jpeg;*.png;*.bmp|Все файлы|*.*";
+            openFileDialog.Title = "Выберите изображение";
 
-            // Получение размеров изображения
-            width = dataset.RasterXSize;
-            height = dataset.RasterYSize;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = openFileDialog.FileName;
 
-            // Чтение данных пикселей
-            short[] buffer = new short[width * height * 3]; // 3 канала (RGB) по 8 бит на канал
-            dataset.ReadRaster(0, 0, width, height, buffer, width, height, 3, null, 0, 0, 0);
+                Dataset dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
+                if (dataset == null)
+                {
+                    MessageBox.Show("Не удалось открыть файл", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
-            // Закрытие датасета GDAL
-            dataset.Dispose();
-            red = new short[width * height];
-            green = new short[width * height];
-            blue = new short[width * height];
-            for (int i = 0; i < width * height; i++)
-            {
-                red[i] = buffer[i];
-            }
-            for (int i = 0; i < width * height; i++)
-            {
-                green[i] = buffer[i + width * height];
-            }
-            for (int i = 0; i < width * height; i++)
-            {
-                blue[i] = buffer[i + width * height * 2];
+                width = dataset.RasterXSize;
+                height = dataset.RasterYSize;
+
+                short[] buffer = new short[width * height * 3];
+                dataset.ReadRaster(0, 0, width, height, buffer, width, height, 3, null, 0, 0, 0);
+
+                dataset.Dispose();
+
+                red = new short[width * height];
+                green = new short[width * height];
+                blue = new short[width * height];
+
+                for (int i = 0; i < width * height; i++)
+                {
+                    red[i] = buffer[i];
+                }
+
+                for (int i = 0; i < width * height; i++)
+                {
+                    green[i] = buffer[i + width * height];
+                }
+
+                for (int i = 0; i < width * height; i++)
+                {
+                    blue[i] = buffer[i + width * height * 2];
+                }
             }
         }
 
@@ -109,19 +113,14 @@ namespace Tiffpaint
                 }
             }
             box.Image = OriginalImage;
-            //box.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         /// <summary>
         /// Выводит изображение с выделенными областями
         /// </summary>
         /// <param name="box">Контейнер, куда выводить</param>
-        public void PrintSelectingAreasImage(PictureBox box)
+        public void PrintSelectingAreasImage(PictureBox box, int grayThreshold, int whiteThreshold) 
         {
-            //box.BackColor = Color.Transparent;
-
-
-
             // Создание объекта Bitmap
             drawingBitmap = new Bitmap(width, height);
             Color gray = Color.FromArgb(128, 128, 128);
@@ -134,39 +133,23 @@ namespace Tiffpaint
                 {
                     int index = y * width + x; // Индекс текущего пикселя в массивах данных
                     int brightness = (red[index] + green[index] + blue[index]) / 3;
-                    if (brightness < 300)
+                    if (brightness < grayThreshold)
                         drawingBitmap.SetPixel(x, y, gray);
-                    else if (brightness < 800 && brightness > 300)
+                    else if (brightness < whiteThreshold && brightness > grayThreshold)
                         drawingBitmap.SetPixel(x, y, white);
                     else
                         drawingBitmap.SetPixel(x, y, black);
                 }
             }
-
-
-
             box.Image = drawingBitmap;
-            //box.Image = ApplyTransparency(drawingBitmap, 0.10f);
-            //box.BackColor = Color.FromArgb(200, Color.White);
+            pictureBox3.Image = drawingBitmap;
         }
-
-        private Bitmap ApplyTransparency(Bitmap bmp, float opacity)
-        {
-            Bitmap resultBitmap = new Bitmap(bmp.Width, bmp.Height);
-            using (Graphics g = Graphics.FromImage(resultBitmap))
-            {
-                ColorMatrix matrix = new ColorMatrix();
-                matrix.Matrix33 = opacity; // Устанавливаем значение прозрачности
-                ImageAttributes attributes = new ImageAttributes();
-                attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                g.DrawImage(bmp, new Rectangle(0, 0, bmp.Width, bmp.Height), 0, 0, bmp.Width, bmp.Height, GraphicsUnit.Pixel, attributes);
-            }
-            return resultBitmap;
-        }
-
 
         //=================================================== Рисование
 
+        /// <summary>
+        /// Событие нажатия мыши при рисовании
+        /// </summary>
         private void pictureBox2_MouseDown(object sender, MouseEventArgs e)
         {
             isDrawing = true;
@@ -178,6 +161,9 @@ namespace Tiffpaint
                 previousPoint = e.Location;
         }
 
+        /// <summary>
+        /// Обрботчик события перемещенпия мыши при рисовании
+        /// </summary>
         private void pictureBox2_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDrawing)
@@ -200,11 +186,22 @@ namespace Tiffpaint
                     g.DrawLine(pen, roundedPreviousPoint, roundedBitmapLocation);
                 }
                 pictureBox2.Invalidate(); // Обновление PictureBox
+                pictureBox3.Invalidate(); // Обновление PictureBox
                 previousPoint = bitmapLocation;
             }
         }
 
-        // Метод для преобразования координат мыши из PictureBox в координаты Bitmap
+        /// <summary>
+        /// Обработчик события отпускания мыши при рисовании
+        /// </summary>
+        private void pictureBox2_MouseUp(object sender, MouseEventArgs e)
+        {
+            isDrawing = false;
+        }
+
+        /// <summary>
+        /// Метод для преобразования координат мыши из PictureBox в координаты Bitmap
+        /// </summary>
         private Point PictureBoxToBitmapCoordinates(PictureBox pictureBox, Point pictureBoxLocation)
         {
             float scaleX = (float)drawingBitmap.Width / pictureBox.ClientSize.Width;
@@ -217,17 +214,19 @@ namespace Tiffpaint
             return new Point(bitmapX, bitmapY);
         }
 
-        private void pictureBox2_MouseUp(object sender, MouseEventArgs e)
-        {
-            isDrawing = false;
-        }
-
+        /// <summary>
+        /// Обработчик кнопки сохраения маски
+        /// </summary>
         private void SaveBtn_Click(object sender, EventArgs e)
         {
             SaveAsGeoTiff(drawingBitmap, @"C:\Users\ivan3\Desktop\subimage_1536_1536_mask.tiff");
-            //SaveBitmap(@"C:\Users\ivan3\Desktop\example.jpg", drawingBitmap, ImageFormat.Jpeg);
         }
 
+        /// <summary>
+        /// Функция сохранения готового изображения
+        /// </summary>
+        /// <param name="bitmap">Изображение</param>
+        /// <param name="outputPath">Путь сохранения</param>
         public static void SaveAsGeoTiff(Bitmap bitmap, string outputPath)
         {
             Gdal.AllRegister();
@@ -240,6 +239,9 @@ namespace Tiffpaint
             ds.Dispose();
         }
 
+        /// <summary>
+        /// Функция копирования данных из bitmap в dataset
+        /// </summary>
         private static void BitmapDataToRaster(Bitmap bitmap, Dataset ds)
         {
             // Блокировка изображения для получения данных в формате BitmapData
@@ -273,11 +275,9 @@ namespace Tiffpaint
             }
         }
 
-        public static void SaveBitmap(string filePath, Bitmap bitmap, ImageFormat format)
-        {
-            bitmap.Save(filePath, format);
-        }
-
+        /// <summary>
+        /// Обработчик запрещающий вводить в текстовое поле что-либо кроме цифр
+        /// </summary>
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
@@ -286,12 +286,18 @@ namespace Tiffpaint
             }
         }
 
+        /// <summary>
+        /// Инициализация кисти для рисования
+        /// </summary>
         private void InitializePen()
         {
             txtSize.Text = "2";
             BlackRd.Checked = true;
         }
 
+        /// <summary>
+        /// Выбор кнопки черного цвета
+        /// </summary>
         private void BlackRd_CheckedChanged(object sender, EventArgs e)
         {
             if (BlackRd.Checked)
@@ -301,6 +307,9 @@ namespace Tiffpaint
             }
         }
 
+        /// <summary>
+        /// Выбор кнопки белого цвета
+        /// </summary>
         private void WhiteRb_CheckedChanged(object sender, EventArgs e)
         {
             if (WhiteRb.Checked)
@@ -310,6 +319,9 @@ namespace Tiffpaint
             }
         }
 
+        /// <summary>
+        /// Выбор кнопки серого цвета
+        /// </summary>
         private void GrayRb_CheckedChanged(object sender, EventArgs e)
         {
             if (GrayRb.Checked)
@@ -320,11 +332,17 @@ namespace Tiffpaint
 
         }
 
+        /// <summary>
+        /// Обработчик события изменения текстового поля
+        /// </summary>
         private void txtSize_TextChanged(object sender, EventArgs e)
         {
             pen = new Pen(CurrentColor, Convert.ToInt32(txtSize.Text));
         }
 
+        /// <summary>
+        /// Обработчик прокрутки колеса мыши для реализация функционала zoom
+        /// </summary>
         private void pictureBox_MouseWheel(object sender, MouseEventArgs e)
         {
             if (sender is PictureBox box)
@@ -334,7 +352,9 @@ namespace Tiffpaint
                     // Увеличение масштаба при прокрутке колесика вверх
                     if (box.SizeMode != PictureBoxSizeMode.Zoom)
                     {
-                        box.SizeMode = PictureBoxSizeMode.Zoom;
+                        pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+                        pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
+                        pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
                         //previousPoint = PictureBoxToBitmapCoordinates(pictureBox2, previousPoint);
                     }
 
@@ -344,17 +364,24 @@ namespace Tiffpaint
                 {
                     // Уменьшение масштаба при прокрутке колесика вниз
                     if (box.SizeMode != PictureBoxSizeMode.Normal)
-                        box.SizeMode = PictureBoxSizeMode.Normal;
+                    {
+                        pictureBox1.SizeMode = PictureBoxSizeMode.Normal;
+                        pictureBox2.SizeMode = PictureBoxSizeMode.Normal;
+                        pictureBox3.SizeMode = PictureBoxSizeMode.Normal;
+                    }
                 }
             }
         }
 
+        /// <summary>
+        /// Обработчик нажатия кнопок с клавиатуры
+        /// </summary>
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             // Обработка нажатия клавиш Z, X и C
             if (e.KeyCode == Keys.Z)
             {
-                if(pictureBox2.Visible == true)
+                if (pictureBox2.Visible == true)
                 {
                     pictureBox2.Visible = false;
                 }
@@ -368,7 +395,42 @@ namespace Tiffpaint
             }
             else if (e.KeyCode == Keys.C)
             {
-                
+
+            }
+        }
+
+        /// <summary>
+        /// Обработчик события нажатия кнопки загрузки изображения
+        /// </summary>
+        private void LoadOriginalImagebtn_Click(object sender, EventArgs e)
+        {
+            LoadImage();
+            PrintOriginalImage(pictureBox1);
+        }
+
+
+        private void Colortxt_TextChanged(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(Graytxt.Text) || string.IsNullOrEmpty(Whitetxt.Text))
+            {
+                ApplyBtn.Enabled = false;
+            }
+            else
+            {
+                ApplyBtn.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Обработчик нажатия кнопки применения пороговых значений
+        /// </summary>
+        private void ApplyBtn_Click(object sender, EventArgs e)
+        {
+            int Gray = Convert.ToInt32(Graytxt.Text);
+            int White = Convert.ToInt32(Whitetxt.Text);
+            if(Gray>0 && White>0 && Gray < White)
+            {
+                PrintSelectingAreasImage(pictureBox2, Gray, White);
             }
         }
     }
