@@ -46,6 +46,9 @@
             label6 = new Label();
             ApplyBtn = new Button();
             pictureBox3 = new PictureBox();
+            Back_btn = new Button();
+            Further_btn = new Button();
+            ChunkInfo_lbl = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
@@ -72,7 +75,7 @@
             // 
             // SaveBtn
             // 
-            SaveBtn.Location = new Point(1824, 522);
+            SaveBtn.Location = new Point(1354, 955);
             SaveBtn.Name = "SaveBtn";
             SaveBtn.Size = new Size(75, 23);
             SaveBtn.TabIndex = 2;
@@ -146,7 +149,7 @@
             // 
             // LoadOriginalImagebtn
             // 
-            LoadOriginalImagebtn.Location = new Point(320, 955);
+            LoadOriginalImagebtn.Location = new Point(340, 955);
             LoadOriginalImagebtn.Name = "LoadOriginalImagebtn";
             LoadOriginalImagebtn.Size = new Size(161, 23);
             LoadOriginalImagebtn.TabIndex = 9;
@@ -226,11 +229,43 @@
             pictureBox3.TabIndex = 18;
             pictureBox3.TabStop = false;
             // 
+            // Back_btn
+            // 
+            Back_btn.Location = new Point(340, 1000);
+            Back_btn.Name = "Back_btn";
+            Back_btn.Size = new Size(75, 23);
+            Back_btn.TabIndex = 19;
+            Back_btn.Text = "Back";
+            Back_btn.UseVisualStyleBackColor = true;
+            Back_btn.Click += Back_btn_Click;
+            // 
+            // Further_btn
+            // 
+            Further_btn.Location = new Point(426, 1000);
+            Further_btn.Name = "Further_btn";
+            Further_btn.Size = new Size(75, 23);
+            Further_btn.TabIndex = 20;
+            Further_btn.Text = "Further";
+            Further_btn.UseVisualStyleBackColor = true;
+            Further_btn.Click += Further_btn_Click;
+            // 
+            // ChunkInfo_lbl
+            // 
+            ChunkInfo_lbl.AutoSize = true;
+            ChunkInfo_lbl.Location = new Point(771, 955);
+            ChunkInfo_lbl.Name = "ChunkInfo_lbl";
+            ChunkInfo_lbl.Size = new Size(10, 15);
+            ChunkInfo_lbl.TabIndex = 21;
+            ChunkInfo_lbl.Text = ".";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1918, 1041);
+            Controls.Add(ChunkInfo_lbl);
+            Controls.Add(Further_btn);
+            Controls.Add(Back_btn);
             Controls.Add(pictureBox3);
             Controls.Add(ApplyBtn);
             Controls.Add(label6);
@@ -282,5 +317,8 @@
         private Label label6;
         private Button ApplyBtn;
         private PictureBox pictureBox3;
+        private Button Back_btn;
+        private Button Further_btn;
+        private Label ChunkInfo_lbl;
     }
 }
