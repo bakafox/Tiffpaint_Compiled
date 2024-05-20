@@ -15,11 +15,48 @@ namespace Tiffpaint
         int width;
         int height;
 
+
         //рисование
         private Point previousPoint;
         private bool isDrawing = false;
         private Bitmap drawingBitmap;
         private Bitmap OriginalImage;
+
+        private int grey;
+        public int GreyThreshold
+        {
+            get
+            {
+                return grey;
+            }
+            set
+            {
+                if (value != GreyThreshold)
+                {
+                    grey = value;
+                    TrackGrey.Value = grey;
+                    Greytxt.Text = grey.ToString();
+                }
+            }
+        }
+        private int white;
+        public int WhiteThreshold
+        {
+            get
+            {
+                return white;
+            }
+            set
+            {
+                if (value != WhiteThreshold)
+                {
+                    white = value;
+                    Whitetxt.Text = white.ToString();
+                    TrackWhite.Value = white;
+                }
+            }
+        }
+
         Bitmap ChunkImage;
         Pen pen;
         Color CurrentColor;
@@ -38,17 +75,48 @@ namespace Tiffpaint
         {
             InitializeComponent();
             GdalBase.ConfigureAll();
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            TrackInit();
             InitializePen();
-            Graytxt.Text = "300";
-            Whitetxt.Text = "800";
+            GreyThreshold = 300;
+            WhiteThreshold = 800;
             pictureBox2.Visible = false;
             pictureBox2.MouseWheel += pictureBox_MouseWheel;
             pictureBox1.MouseWheel += pictureBox_MouseWheel;
             pictureBox3.MouseWheel += pictureBox_MouseWheel;
+
+        }
+
+        /// <summary>
+        /// Инициализация ползунков
+        /// </summary>
+        private void TrackInit()
+        {
+            TrackGrey.Minimum = 100;
+            TrackGrey.Maximum = 500;
+            TrackGrey.TickFrequency = 10;
+            TrackGrey.SmallChange = 10; // Шаг изменения значения при использовании стрелок
+            TrackGrey.LargeChange = 20; // Шаг изменения значения при клике на трекбаре вне области ползунка
+            TrackGrey.ValueChanged += (sender, e) =>
+            {
+                GreyThreshold = TrackGrey.Value;
+                PrintSelectingAreasImage(pictureBox2, ChunkImage, GreyThreshold, WhiteThreshold);
+            };
+
+            TrackWhite.Minimum = 600;
+            TrackWhite.Maximum = 1000;
+            TrackWhite.TickFrequency = 10;
+            TrackWhite.SmallChange = 10; // Шаг изменения значения при использовании стрелок
+            TrackWhite.LargeChange = 20; // Шаг изменения значения при клике на трекбаре вне области ползунка
+            TrackWhite.ValueChanged += (sender, e) =>
+            {
+                WhiteThreshold = TrackWhite.Value;
+                PrintSelectingAreasImage(pictureBox2, ChunkImage, GreyThreshold, WhiteThreshold);
+            };
         }
 
         /// <summary>
@@ -155,28 +223,33 @@ namespace Tiffpaint
         /// <param name="whiteThreshold">Порог яркости для определения белой области</param>
         public void PrintSelectingAreasImage(PictureBox box, Bitmap bitmap, int grayThreshold, int whiteThreshold)
         {
-            // Создание объекта Bitmap
-            drawingBitmap = new Bitmap(bitmap.Width, bitmap.Height);
-            Color gray = Color.FromArgb(128, 128, 128);
-            Color black = Color.Black;
-            Color white = Color.White;
-            // Заполнение изображения данными
-            for (int y = 0; y < bitmap.Height; y++)
+            if (bitmap != null)
             {
-                for (int x = 0; x < bitmap.Width; x++)
+
+
+                // Создание объекта Bitmap
+                drawingBitmap = new Bitmap(bitmap.Width, bitmap.Height);
+                Color gray = Color.FromArgb(128, 128, 128);
+                Color black = Color.Black;
+                Color white = Color.White;
+                // Заполнение изображения данными
+                for (int y = 0; y < bitmap.Height; y++)
                 {
-                    Color pixelColor = bitmap.GetPixel(x, y);
-                    int brightness = (int)(pixelColor.R * ConvertingNumber + pixelColor.G * ConvertingNumber + pixelColor.B * ConvertingNumber) / 3;
-                    if (brightness < grayThreshold)
-                        drawingBitmap.SetPixel(x, y, gray);
-                    else if (brightness < whiteThreshold && brightness > grayThreshold)
-                        drawingBitmap.SetPixel(x, y, white);
-                    else
-                        drawingBitmap.SetPixel(x, y, black);
+                    for (int x = 0; x < bitmap.Width; x++)
+                    {
+                        Color pixelColor = bitmap.GetPixel(x, y);
+                        int brightness = (int)(pixelColor.R * ConvertingNumber + pixelColor.G * ConvertingNumber + pixelColor.B * ConvertingNumber) / 3;
+                        if (brightness < grayThreshold)
+                            drawingBitmap.SetPixel(x, y, gray);
+                        else if (brightness < whiteThreshold && brightness > grayThreshold)
+                            drawingBitmap.SetPixel(x, y, white);
+                        else
+                            drawingBitmap.SetPixel(x, y, black);
+                    }
                 }
+                box.Image = drawingBitmap;
+                pictureBox3.Image = drawingBitmap;
             }
-            box.Image = drawingBitmap;
-            pictureBox3.Image = drawingBitmap;
         }
 
         //=================================================== Рисование
@@ -423,7 +496,7 @@ namespace Tiffpaint
             {
                 ShowPreviousChunk();
             }
-            else if(e.KeyCode == Keys.S)
+            else if (e.KeyCode == Keys.S)
             {
                 ShowNextChunk();
             }
@@ -438,7 +511,7 @@ namespace Tiffpaint
             StatisticksWrite();
             //PrintOriginalImage(pictureBox1);
             PrintImageChunk(pictureBox1, 0, 0, 512, 512);
-            
+
             ShowChunkInfo();
         }
 
@@ -468,7 +541,7 @@ namespace Tiffpaint
         /// </summary>
         private void Colortxt_TextChanged(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(Graytxt.Text) || string.IsNullOrEmpty(Whitetxt.Text))
+            if (string.IsNullOrEmpty(Greytxt.Text) || string.IsNullOrEmpty(Whitetxt.Text))
             {
                 ApplyBtn.Enabled = false;
             }
@@ -483,11 +556,9 @@ namespace Tiffpaint
         /// </summary>
         private void ApplyBtn_Click(object sender, EventArgs e)
         {
-            int Gray = Convert.ToInt32(Graytxt.Text);
-            int White = Convert.ToInt32(Whitetxt.Text);
-            if (Gray > 0 && White > 0 && Gray < White)
+            if (GreyThreshold > 0 && WhiteThreshold > 0 && GreyThreshold < WhiteThreshold)
             {
-                PrintSelectingAreasImage(pictureBox2, ChunkImage, Gray, White);
+                PrintSelectingAreasImage(pictureBox2, ChunkImage, GreyThreshold, WhiteThreshold);
             }
         }
 
@@ -637,6 +708,11 @@ namespace Tiffpaint
             info += string.Format("Это чанк номер {0} из {1}", currentChunkNumber, totalChunks);
 
             ChunkInfo_lbl.Text = info;
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

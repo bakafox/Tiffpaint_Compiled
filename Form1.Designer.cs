@@ -39,10 +39,9 @@
             LoadOriginalImagebtn = new Button();
             label3 = new Label();
             label4 = new Label();
-            Graytxt = new TextBox();
+            Greytxt = new TextBox();
             Whitetxt = new TextBox();
             label5 = new Label();
-            label6 = new Label();
             ApplyBtn = new Button();
             pictureBox3 = new PictureBox();
             Back_btn = new Button();
@@ -52,22 +51,27 @@
             label8 = new Label();
             label9 = new Label();
             label10 = new Label();
+            TrackGrey = new TrackBar();
+            TrackWhite = new TrackBar();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)TrackGrey).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)TrackWhite).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new Point(36, 12);
+            pictureBox1.Location = new Point(12, 12);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(700, 700);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
             // pictureBox2
             // 
-            pictureBox2.Location = new Point(36, 12);
+            pictureBox2.Location = new Point(12, 12);
             pictureBox2.Name = "pictureBox2";
             pictureBox2.Size = new Size(700, 700);
             pictureBox2.TabIndex = 1;
@@ -153,7 +157,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(1480, 156);
+            label3.Location = new Point(1480, 135);
             label3.Name = "label3";
             label3.Size = new Size(93, 15);
             label3.TabIndex = 10;
@@ -162,24 +166,24 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(1480, 192);
+            label4.Location = new Point(1483, 201);
             label4.Name = "label4";
             label4.Size = new Size(39, 15);
             label4.TabIndex = 11;
             label4.Text = "Gray<";
             // 
-            // Graytxt
+            // Greytxt
             // 
-            Graytxt.Location = new Point(1525, 189);
-            Graytxt.Name = "Graytxt";
-            Graytxt.Size = new Size(44, 23);
-            Graytxt.TabIndex = 12;
-            Graytxt.TextChanged += Colortxt_TextChanged;
-            Graytxt.KeyPress += textBox1_KeyPress;
+            Greytxt.Location = new Point(1528, 198);
+            Greytxt.Name = "Greytxt";
+            Greytxt.Size = new Size(44, 23);
+            Greytxt.TabIndex = 12;
+            Greytxt.TextChanged += Colortxt_TextChanged;
+            Greytxt.KeyPress += textBox1_KeyPress;
             // 
             // Whitetxt
             // 
-            Whitetxt.Location = new Point(1525, 218);
+            Whitetxt.Location = new Point(1524, 275);
             Whitetxt.Name = "Whitetxt";
             Whitetxt.Size = new Size(44, 23);
             Whitetxt.TabIndex = 14;
@@ -189,24 +193,15 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(1480, 221);
+            label5.Location = new Point(1479, 278);
             label5.Name = "label5";
             label5.Size = new Size(46, 15);
             label5.TabIndex = 13;
             label5.Text = "White<";
             // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Location = new Point(1503, 253);
-            label6.Name = "label6";
-            label6.Size = new Size(43, 15);
-            label6.TabIndex = 15;
-            label6.Text = "Black>";
-            // 
             // ApplyBtn
             // 
-            ApplyBtn.Location = new Point(1480, 288);
+            ApplyBtn.Location = new Point(1479, 319);
             ApplyBtn.Name = "ApplyBtn";
             ApplyBtn.Size = new Size(75, 23);
             ApplyBtn.TabIndex = 17;
@@ -216,7 +211,7 @@
             // 
             // pictureBox3
             // 
-            pictureBox3.Location = new Point(760, 12);
+            pictureBox3.Location = new Point(726, 12);
             pictureBox3.Name = "pictureBox3";
             pictureBox3.Size = new Size(700, 700);
             pictureBox3.TabIndex = 18;
@@ -287,11 +282,27 @@
             label10.TabIndex = 25;
             label10.Text = "X - Zoom out";
             // 
+            // TrackGrey
+            // 
+            TrackGrey.Location = new Point(1432, 153);
+            TrackGrey.Name = "TrackGrey";
+            TrackGrey.Size = new Size(142, 45);
+            TrackGrey.TabIndex = 26;
+            // 
+            // TrackWhite
+            // 
+            TrackWhite.Location = new Point(1432, 227);
+            TrackWhite.Name = "TrackWhite";
+            TrackWhite.Size = new Size(142, 45);
+            TrackWhite.TabIndex = 27;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1584, 861);
+            Controls.Add(TrackWhite);
+            Controls.Add(TrackGrey);
             Controls.Add(label10);
             Controls.Add(label9);
             Controls.Add(label8);
@@ -301,10 +312,9 @@
             Controls.Add(Back_btn);
             Controls.Add(pictureBox3);
             Controls.Add(ApplyBtn);
-            Controls.Add(label6);
             Controls.Add(Whitetxt);
             Controls.Add(label5);
-            Controls.Add(Graytxt);
+            Controls.Add(Greytxt);
             Controls.Add(label4);
             Controls.Add(label3);
             Controls.Add(LoadOriginalImagebtn);
@@ -325,6 +335,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
+            ((System.ComponentModel.ISupportInitialize)TrackGrey).EndInit();
+            ((System.ComponentModel.ISupportInitialize)TrackWhite).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -342,10 +354,9 @@
         private Button LoadOriginalImagebtn;
         private Label label3;
         private Label label4;
-        private TextBox Graytxt;
+        private TextBox Greytxt;
         private TextBox Whitetxt;
         private Label label5;
-        private Label label6;
         private Button ApplyBtn;
         private PictureBox pictureBox3;
         private Button Back_btn;
@@ -355,5 +366,7 @@
         private Label label8;
         private Label label9;
         private Label label10;
+        private TrackBar TrackGrey;
+        private TrackBar TrackWhite;
     }
 }
