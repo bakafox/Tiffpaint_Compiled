@@ -249,14 +249,6 @@ namespace Tiffpaint
         }
 
         /// <summary>
-        /// Обработчик кнопки сохраения маски
-        /// </summary>
-        private void SaveBtn_Click(object sender, EventArgs e)
-        {
-            SaveAsGeoTiff(drawingBitmap, @"C:\Users\ivan3\Desktop\subimage_1536_1536_mask.tiff");
-        }
-
-        /// <summary>
         /// Функция сохранения готового изображения
         /// </summary>
         /// <param name="bitmap">Изображение</param>
@@ -427,9 +419,13 @@ namespace Tiffpaint
                     pictureBox2.Visible = true;
                 }
             }
-            else if (e.KeyCode == Keys.C)
+            else if (e.KeyCode == Keys.A)
             {
-
+                ShowPreviousChunk();
+            }
+            else if(e.KeyCode == Keys.S)
+            {
+                ShowNextChunk();
             }
         }
 

@@ -30,7 +30,6 @@
         {
             pictureBox1 = new PictureBox();
             pictureBox2 = new PictureBox();
-            SaveBtn = new Button();
             BlackRd = new RadioButton();
             WhiteRb = new RadioButton();
             GrayRb = new RadioButton();
@@ -49,6 +48,10 @@
             Back_btn = new Button();
             Further_btn = new Button();
             ChunkInfo_lbl = new Label();
+            label7 = new Label();
+            label8 = new Label();
+            label9 = new Label();
+            label10 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
@@ -56,37 +59,27 @@
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new Point(12, 37);
+            pictureBox1.Location = new Point(36, 12);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(900, 900);
+            pictureBox1.Size = new Size(700, 700);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
             // pictureBox2
             // 
-            pictureBox2.Location = new Point(12, 37);
+            pictureBox2.Location = new Point(36, 12);
             pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(900, 900);
+            pictureBox2.Size = new Size(700, 700);
             pictureBox2.TabIndex = 1;
             pictureBox2.TabStop = false;
             pictureBox2.MouseDown += pictureBox2_MouseDown;
             pictureBox2.MouseMove += pictureBox2_MouseMove;
             pictureBox2.MouseUp += pictureBox2_MouseUp;
             // 
-            // SaveBtn
-            // 
-            SaveBtn.Location = new Point(1354, 955);
-            SaveBtn.Name = "SaveBtn";
-            SaveBtn.Size = new Size(75, 23);
-            SaveBtn.TabIndex = 2;
-            SaveBtn.Text = "Сохранить";
-            SaveBtn.UseVisualStyleBackColor = true;
-            SaveBtn.Click += SaveBtn_Click;
-            // 
             // BlackRd
             // 
             BlackRd.AutoSize = true;
-            BlackRd.Location = new Point(1825, 391);
+            BlackRd.Location = new Point(1480, 425);
             BlackRd.Name = "BlackRd";
             BlackRd.Size = new Size(53, 19);
             BlackRd.TabIndex = 3;
@@ -98,7 +91,7 @@
             // WhiteRb
             // 
             WhiteRb.AutoSize = true;
-            WhiteRb.Location = new Point(1825, 416);
+            WhiteRb.Location = new Point(1480, 450);
             WhiteRb.Name = "WhiteRb";
             WhiteRb.Size = new Size(56, 19);
             WhiteRb.TabIndex = 4;
@@ -110,7 +103,7 @@
             // GrayRb
             // 
             GrayRb.AutoSize = true;
-            GrayRb.Location = new Point(1825, 441);
+            GrayRb.Location = new Point(1480, 475);
             GrayRb.Name = "GrayRb";
             GrayRb.Size = new Size(49, 19);
             GrayRb.TabIndex = 5;
@@ -121,7 +114,7 @@
             // 
             // txtSize
             // 
-            txtSize.Location = new Point(1824, 481);
+            txtSize.Location = new Point(1479, 515);
             txtSize.Name = "txtSize";
             txtSize.Size = new Size(67, 23);
             txtSize.TabIndex = 6;
@@ -132,7 +125,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(1825, 373);
+            label1.Location = new Point(1480, 407);
             label1.Name = "label1";
             label1.Size = new Size(36, 15);
             label1.TabIndex = 7;
@@ -141,7 +134,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(1824, 463);
+            label2.Location = new Point(1479, 497);
             label2.Name = "label2";
             label2.Size = new Size(50, 15);
             label2.TabIndex = 8;
@@ -149,7 +142,7 @@
             // 
             // LoadOriginalImagebtn
             // 
-            LoadOriginalImagebtn.Location = new Point(340, 955);
+            LoadOriginalImagebtn.Location = new Point(230, 733);
             LoadOriginalImagebtn.Name = "LoadOriginalImagebtn";
             LoadOriginalImagebtn.Size = new Size(161, 23);
             LoadOriginalImagebtn.TabIndex = 9;
@@ -160,7 +153,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(1825, 122);
+            label3.Location = new Point(1480, 156);
             label3.Name = "label3";
             label3.Size = new Size(93, 15);
             label3.TabIndex = 10;
@@ -169,7 +162,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(1825, 158);
+            label4.Location = new Point(1480, 192);
             label4.Name = "label4";
             label4.Size = new Size(39, 15);
             label4.TabIndex = 11;
@@ -177,7 +170,7 @@
             // 
             // Graytxt
             // 
-            Graytxt.Location = new Point(1870, 155);
+            Graytxt.Location = new Point(1525, 189);
             Graytxt.Name = "Graytxt";
             Graytxt.Size = new Size(44, 23);
             Graytxt.TabIndex = 12;
@@ -186,7 +179,7 @@
             // 
             // Whitetxt
             // 
-            Whitetxt.Location = new Point(1870, 184);
+            Whitetxt.Location = new Point(1525, 218);
             Whitetxt.Name = "Whitetxt";
             Whitetxt.Size = new Size(44, 23);
             Whitetxt.TabIndex = 14;
@@ -196,7 +189,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(1825, 187);
+            label5.Location = new Point(1480, 221);
             label5.Name = "label5";
             label5.Size = new Size(46, 15);
             label5.TabIndex = 13;
@@ -205,7 +198,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(1848, 219);
+            label6.Location = new Point(1503, 253);
             label6.Name = "label6";
             label6.Size = new Size(43, 15);
             label6.TabIndex = 15;
@@ -213,7 +206,7 @@
             // 
             // ApplyBtn
             // 
-            ApplyBtn.Location = new Point(1825, 254);
+            ApplyBtn.Location = new Point(1480, 288);
             ApplyBtn.Name = "ApplyBtn";
             ApplyBtn.Size = new Size(75, 23);
             ApplyBtn.TabIndex = 17;
@@ -223,15 +216,15 @@
             // 
             // pictureBox3
             // 
-            pictureBox3.Location = new Point(918, 37);
+            pictureBox3.Location = new Point(760, 12);
             pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(900, 900);
+            pictureBox3.Size = new Size(700, 700);
             pictureBox3.TabIndex = 18;
             pictureBox3.TabStop = false;
             // 
             // Back_btn
             // 
-            Back_btn.Location = new Point(340, 1000);
+            Back_btn.Location = new Point(230, 762);
             Back_btn.Name = "Back_btn";
             Back_btn.Size = new Size(75, 23);
             Back_btn.TabIndex = 19;
@@ -241,7 +234,7 @@
             // 
             // Further_btn
             // 
-            Further_btn.Location = new Point(426, 1000);
+            Further_btn.Location = new Point(316, 762);
             Further_btn.Name = "Further_btn";
             Further_btn.Size = new Size(75, 23);
             Further_btn.TabIndex = 20;
@@ -252,17 +245,57 @@
             // ChunkInfo_lbl
             // 
             ChunkInfo_lbl.AutoSize = true;
-            ChunkInfo_lbl.Location = new Point(771, 955);
+            ChunkInfo_lbl.Location = new Point(726, 733);
             ChunkInfo_lbl.Name = "ChunkInfo_lbl";
             ChunkInfo_lbl.Size = new Size(10, 15);
             ChunkInfo_lbl.TabIndex = 21;
             ChunkInfo_lbl.Text = ".";
             // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(1242, 741);
+            label7.Name = "label7";
+            label7.Size = new Size(51, 15);
+            label7.TabIndex = 22;
+            label7.Text = "A - Back";
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(1242, 756);
+            label8.Name = "label8";
+            label8.Size = new Size(49, 15);
+            label8.TabIndex = 23;
+            label8.Text = "S - Next";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(1242, 771);
+            label9.Name = "label9";
+            label9.Size = new Size(70, 15);
+            label9.TabIndex = 24;
+            label9.Text = "Z - Zoom in";
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(1242, 786);
+            label10.Name = "label10";
+            label10.Size = new Size(78, 15);
+            label10.TabIndex = 25;
+            label10.Text = "X - Zoom out";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1918, 1041);
+            ClientSize = new Size(1584, 861);
+            Controls.Add(label10);
+            Controls.Add(label9);
+            Controls.Add(label8);
+            Controls.Add(label7);
             Controls.Add(ChunkInfo_lbl);
             Controls.Add(Further_btn);
             Controls.Add(Back_btn);
@@ -281,7 +314,6 @@
             Controls.Add(GrayRb);
             Controls.Add(WhiteRb);
             Controls.Add(BlackRd);
-            Controls.Add(SaveBtn);
             Controls.Add(pictureBox2);
             Controls.Add(pictureBox1);
             KeyPreview = true;
@@ -301,7 +333,6 @@
 
         private PictureBox pictureBox1;
         private PictureBox pictureBox2;
-        private Button SaveBtn;
         private RadioButton BlackRd;
         private RadioButton WhiteRb;
         private RadioButton GrayRb;
@@ -320,5 +351,9 @@
         private Button Back_btn;
         private Button Further_btn;
         private Label ChunkInfo_lbl;
+        private Label label7;
+        private Label label8;
+        private Label label9;
+        private Label label10;
     }
 }
