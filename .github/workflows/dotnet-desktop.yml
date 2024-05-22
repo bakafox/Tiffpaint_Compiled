@@ -23,7 +23,6 @@ jobs:
       matrix:
         # https://github.com/microsoft/react-native-windows-samples/actions/runs/8158465761/workflow
         configuration: [Debug, Release]
-        platform: [x86, x64]
 
     # windows-2019 halts the compile process because it doesn't support .NET v6
     runs-on: windows-2022
@@ -49,19 +48,19 @@ jobs:
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:Platform=${{ matrix.platform }}
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
     # Create the app package
     - name: Create the app package
-      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /p:Platform=${{ matrix.platform }}
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
     
     # Ceeate exe file
     - name: Ceeate exe file
-      run: dotnet publish $env:Solution_Name -c $env:Configuration -r win-${{ matrix.platform }} --self-contained -o ./publish
+      run: dotnet publish $env:Solution_Name -c $env:Configuration -r win-x64 --self-contained -o ./publish
       env:
         Configuration: ${{ matrix.configuration }}
 
