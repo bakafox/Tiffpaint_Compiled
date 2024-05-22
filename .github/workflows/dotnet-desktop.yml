@@ -21,8 +21,11 @@ jobs:
 
     strategy:
       matrix:
+        # https://github.com/microsoft/react-native-windows-samples/actions/runs/8158465761/workflow
         configuration: [Debug, Release]
+        platform: [x86, x64]
 
+    # windows-2019 halts the compile process because it doesn't support .NET v6
     runs-on: windows-2022
 
     env:
@@ -46,27 +49,23 @@ jobs:
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:Platform=${{ matrix.platform }}
       env:
         Configuration: ${{ matrix.configuration }}
 
-    # Create the app package by building and packaging the Windows Application Packaging project
+    # Create the app package
     - name: Create the app package
-      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /p:Platform=${{ matrix.platform }}
       env:
         Configuration: ${{ matrix.configuration }}
     
-    # create exe
+    # Ceeate exe file
     - name: Ceeate exe file
-      run: dotnet publish $env:Solution_Name -c $env:Configuration -r win-x64 --self-contained -o ./publish
+      run: dotnet publish $env:Solution_Name -c $env:Configuration -r win-${{ matrix.platform }} --self-contained -o ./publish
       env:
         Configuration: ${{ matrix.configuration }}
 
-    # Remove the pfx
-    - name: Remove the pfx
-      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
-
-    # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
+    # Upload the package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
